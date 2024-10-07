@@ -21,6 +21,21 @@
       margin-top: 20px;
       font-size: 18px;
     }
+
+    #learnedWords {
+      margin-top: 40px;
+      font-size: 16px;
+    }
+
+    #learnedWords ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #learnedWords li {
+      margin: 5px 0;
+      color: green;
+    }
   </style>
 </head>
 <body>
@@ -35,10 +50,16 @@
   <div class="result" id="translationContainer"></div>
   <div class="result" id="phraseContainer"></div>
 
+  <div id="learnedWords">
+    <h2>Learned Words:</h2>
+    <ul id="learnedWordsList"></ul>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
     let wordsData = [];
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
+    let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
     let currentWordsIndex = null;
 
     async function loadExcelFile() {
@@ -47,6 +68,7 @@
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       wordsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      updateLearnedWordsList();
     }
 
     function getRandomUnusedIndex() {
@@ -70,6 +92,7 @@
       const words = wordsData[currentWordsIndex].slice(0, 3);
       document.getElementById('wordsContainer').textContent = `Words: ${words[0]}, ${words[1]}, ${words[2]}`;
       document.getElementById('translateBtn').disabled = false;
+      addLearnedWords(words[0]);
     }
 
     function showTranslation() {
@@ -81,6 +104,22 @@
     function showPhrase() {
       const phrase = wordsData[currentWordsIndex][2];
       document.getElementById('phraseContainer').textContent = `Phrase: ${phrase}`;
+    }
+
+    function addLearnedWords(word) {
+      learnedWords.push(word);
+      localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
+      updateLearnedWordsList();
+    }
+
+    function updateLearnedWordsList() {
+      const learnedWordsList = document.getElementById('learnedWordsList');
+      learnedWordsList.innerHTML = ''; // Limpa a lista
+      learnedWords.forEach(word => {
+        const listItem = document.createElement('li');
+        listItem.textContent = word;
+        learnedWordsList.appendChild(listItem);
+      });
     }
 
     document.getElementById('getWordsBtn').addEventListener('click', () => {
