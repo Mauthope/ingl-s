@@ -17,9 +17,20 @@
       font-size: 16px;
     }
 
-    .result {
+    .word-block {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
       margin-top: 20px;
-      font-size: 18px;
+    }
+
+    .word {
+      border: 1px solid #ccc;
+      padding: 20px;
+      width: 150px;
+      min-height: 50px;
+      background-color: #f9f9f9;
+      display: inline-block;
     }
 
     #learnedWords {
@@ -46,9 +57,9 @@
   <button id="translateBtn" disabled>Translate</button>
   <button id="getPhraseBtn" disabled>Get Phrase</button>
 
-  <div class="result" id="wordsContainer"></div>
-  <div class="result" id="translationContainer"></div>
-  <div class="result" id="phraseContainer"></div>
+  <div class="word-block" id="wordsContainer"></div>
+  <div class="word-block" id="translationContainer"></div>
+  <div class="word-block" id="phraseContainer"></div>
 
   <div id="learnedWords">
     <h2>Learned Words:</h2>
@@ -60,7 +71,7 @@
     let wordsData = [];
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
     let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
-    let currentWordsIndex = null;
+    let currentWordsIndexes = [];
 
     async function loadExcelFile() {
       const response = await fetch('ingles.xlsx');
@@ -71,39 +82,65 @@
       updateLearnedWordsList();
     }
 
-    function getRandomUnusedIndex() {
-      let index;
-      do {
-        index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
-      } while (usedIndexes.includes(index) && usedIndexes.length < wordsData.length - 1);
-      return index;
+    function getRandomUnusedIndexes() {
+      let indexes = [];
+      while (indexes.length < 3) {
+        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
+        if (!usedIndexes.includes(index) && !indexes.includes(index)) {
+          indexes.push(index);
+        }
+      }
+      return indexes;
     }
 
-    function getThreeWords() {
+    function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
         alert('All words have been used!');
         return;
       }
 
-      currentWordsIndex = getRandomUnusedIndex();
-      usedIndexes.push(currentWordsIndex);
+      currentWordsIndexes = getRandomUnusedIndexes();
+      usedIndexes.push(...currentWordsIndexes);
       localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
 
-      const words = wordsData[currentWordsIndex].slice(0, 3);
-      document.getElementById('wordsContainer').textContent = `Words: ${words[0]}, ${words[1]}, ${words[2]}`;
+      const wordsContainer = document.getElementById('wordsContainer');
+      wordsContainer.innerHTML = '';
+      currentWordsIndexes.forEach(index => {
+        const word = wordsData[index][0];
+        const wordBlock = document.createElement('div');
+        wordBlock.classList.add('word');
+        wordBlock.textContent = word;
+        wordsContainer.appendChild(wordBlock);
+        addLearnedWords(word);
+      });
+
       document.getElementById('translateBtn').disabled = false;
-      addLearnedWords(words[0]);
     }
 
-    function showTranslation() {
-      const translation = wordsData[currentWordsIndex][1];
-      document.getElementById('translationContainer').textContent = `Translation: ${translation}`;
+    function displayTranslations() {
+      const translationContainer = document.getElementById('translationContainer');
+      translationContainer.innerHTML = '';
+      currentWordsIndexes.forEach(index => {
+        const translation = wordsData[index][1];
+        const translationBlock = document.createElement('div');
+        translationBlock.classList.add('word');
+        translationBlock.textContent = translation;
+        translationContainer.appendChild(translationBlock);
+      });
+
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
-    function showPhrase() {
-      const phrase = wordsData[currentWordsIndex][2];
-      document.getElementById('phraseContainer').textContent = `Phrase: ${phrase}`;
+    function displayPhrases() {
+      const phraseContainer = document.getElementById('phraseContainer');
+      phraseContainer.innerHTML = '';
+      currentWordsIndexes.forEach(index => {
+        const phrase = wordsData[index][2];
+        const phraseBlock = document.createElement('div');
+        phraseBlock.classList.add('word');
+        phraseBlock.textContent = phrase;
+        phraseContainer.appendChild(phraseBlock);
+      });
     }
 
     function addLearnedWords(word) {
@@ -123,15 +160,15 @@
     }
 
     document.getElementById('getWordsBtn').addEventListener('click', () => {
-      getThreeWords();
+      displayWords();
       document.getElementById('translationContainer').textContent = '';
       document.getElementById('phraseContainer').textContent = '';
       document.getElementById('translateBtn').disabled = true;
       document.getElementById('getPhraseBtn').disabled = true;
     });
 
-    document.getElementById('translateBtn').addEventListener('click', showTranslation);
-    document.getElementById('getPhraseBtn').addEventListener('click', showPhrase);
+    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
+    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
     window.onload = loadExcelFile;
   </script>
