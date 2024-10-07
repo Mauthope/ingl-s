@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn English</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Learn English</h1>
+
+  <button id="getWordsBtn">Get Words</button>
+  <button id="translateBtn" disabled>Translate</button>
+  <button id="getPhraseBtn" disabled>Get Phrase</button>
+
+  <div class="result" id="wordsContainer"></div>
+  <div class="result" id="translationContainer"></div>
+  <div class="result" id="phraseContainer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    let wordsData = [];
+    let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
+    let currentWordsIndex = null;
+
+    async function loadExcelFile() {
+      const response = await fetch('ingles.xlsx');
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      wordsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    }
+
+    function getRandomUnusedIndex() {
+      let index;
+      do {
+        index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
+      } while (usedIndexes.includes(index) && usedIndexes.length < wordsData.length - 1);
+      return index;
+    }
+
+    function getThreeWords() {
+      if (usedIndexes.length >= wordsData.length - 1) {
+        alert('All words have been used!');
+        return;
+      }
+
+      currentWordsIndex = getRandomUnusedIndex();
+      usedIndexes.push(currentWordsIndex);
+      localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
+
+      const words = wordsData[currentWordsIndex].slice(0, 3);
+      document.getElementById('wordsContainer').textContent = `Words: ${words[0]}, ${words[1]}, ${words[2]}`;
+      document.getElementById('translateBtn').disabled = false;
+    }
+
+    function showTranslation() {
+      const translation = wordsData[currentWordsIndex][1];
+      document.getElementById('translationContainer').textContent = `Translation: ${translation}`;
+      document.getElementById('getPhraseBtn').disabled = false;
+    }
+
+    function showPhrase() {
+      const phrase = wordsData[currentWordsIndex][2];
+      document.getElementById('phraseContainer').textContent = `Phrase: ${phrase}`;
+    }
+
+    document.getElementById('getWordsBtn').addEventListener('click', () => {
+      getThreeWords();
+      document.getElementById('translationContainer').textContent = '';
+      document.getElementById('phraseContainer').textContent = '';
+      document.getElementById('translateBtn').disabled = true;
+      document.getElementById('getPhraseBtn').disabled = true;
+    });
+
+    document.getElementById('translateBtn').addEventListener('click', showTranslation);
+    document.getElementById('getPhraseBtn').addEventListener('click', showPhrase);
+
+    window.onload = loadExcelFile;
+  </script>
+
+</body>
+</html>
