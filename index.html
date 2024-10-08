@@ -106,30 +106,106 @@
       color: green;
       font-weight: bold;
       font-size: 1.2em;
+      cursor: pointer;
+    }
+
+    #commentSection {
+      margin-top: 40px;
+    }
+
+    #commentSection textarea {
+      width: 90%;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 2px solid #3498db;
+      resize: none;
+    }
+
+    #commentSection button {
+      background-color: #e67e22;
+    }
+
+    #commentSection button:hover {
+      background-color: #d35400;
     }
 
     .container {
       max-width: 800px;
       margin: 0 auto;
     }
+
+    /* Modal (Pop-up) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      background-color: rgba(0, 0, 0, 0.6); /* Black with opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>Aprendendo Inglês com Mauricio</h1>
+    <h1>Learn English</h1>
 
-    <button id="getWordsBtn">Palavras</button>
-    <button id="translateBtn" disabled>Tradução</button>
-    <button id="getPhraseBtn" disabled>Frase</button>
+    <button id="getWordsBtn">Get Words</button>
+    <button id="translateBtn" disabled>Translate</button>
+    <button id="getPhraseBtn" disabled>Get Phrase</button>
 
     <div class="word-block" id="wordsContainer"></div>
     <div class="word-block" id="translationContainer"></div>
     <div class="word-block" id="phraseContainer"></div>
 
     <div id="learnedWords">
-      <h2>Palavras Aprendidas:</h2>
+      <h2>Learned Words:</h2>
       <ul id="learnedWordsList"></ul>
+    </div>
+
+    <div id="commentSection">
+      <h2>Leave a Comment:</h2>
+      <textarea rows="4" placeholder="Write your thoughts here..."></textarea>
+      <br>
+      <button>Submit Comment</button>
+    </div>
+  </div>
+
+  <!-- Modal (Pop-up) -->
+  <div id="wordModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Word Details</h3>
+      <p id="modalWord"></p>
+      <p id="modalTranslation"></p>
+      <p id="modalPhrase"></p>
     </div>
   </div>
 
@@ -221,30 +297,43 @@
 
     function updateLearnedWordsList() {
       const learnedWordsList = document.getElementById('learnedWordsList');
-      learnedWordsList.innerHTML = ''; // Limpa a lista
-      learnedWords.forEach(word => {
+      learnedWordsList.innerHTML = '';
+      learnedWords.forEach((word, index) => {
         const listItem = document.createElement('li');
         listItem.textContent = word;
+        listItem.addEventListener('click', () => showWordDetails(index));
         learnedWordsList.appendChild(listItem);
       });
     }
 
-    document.getElementById('getWordsBtn').addEventListener('click', () => {
-      displayWords();
-      document.getElementById('translationContainer').textContent = ''; // Limpa a tradução anterior
-      document.getElementById('phraseContainer').textContent = ''; // Limpa a frase anterior
-      document.getElementById('translateBtn').disabled = false;
-      document.getElementById('getPhraseBtn').disabled = true; // Garantir que só habilitará após tradução
-    });
+    function showWordDetails(index) {
+      const modal = document.getElementById('wordModal');
+      const wordDetails = wordsData[usedIndexes[index]];
 
-    document.getElementById('translateBtn').addEventListener('click', () => {
-      displayTranslations();
-      document.getElementById('getPhraseBtn').disabled = false; // Habilita "Get Phrase" após tradução
-    });
+      document.getElementById('modalWord').textContent = `Word: ${wordDetails[0]}`;
+      document.getElementById('modalTranslation').textContent = `Translation: ${wordDetails[1]}`;
+      document.getElementById('modalPhrase').textContent = `Phrase: ${wordDetails[2]}`;
+      
+      modal.style.display = 'block';
+    }
 
+    // Close the modal
+    document.querySelector('.close').onclick = function() {
+      document.getElementById('wordModal').style.display = 'none';
+    };
+
+    // Close the modal when clicking outside of it
+    window.onclick = function(event) {
+      if (event.target === document.getElementById('wordModal')) {
+        document.getElementById('wordModal').style.display = 'none';
+      }
+    };
+
+    document.getElementById('getWordsBtn').addEventListener('click', displayWords);
+    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
     document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
-    window.onload = loadExcelFile;
+    loadExcelFile();
   </script>
 
 </body>
