@@ -9,12 +9,48 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
+      background-color: #f0f0f5;
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
 
     button {
       margin: 10px;
-      padding: 10px 20px;
+      padding: 12px 25px;
       font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #getWordsBtn {
+      background-color: #1abc9c;
+    }
+
+    #getWordsBtn:hover {
+      background-color: #16a085;
+    }
+
+    #translateBtn {
+      background-color: #3498db;
+    }
+
+    #translateBtn:hover {
+      background-color: #2980b9;
+    }
+
+    #getPhraseBtn {
+      background-color: #e74c3c;
+    }
+
+    #getPhraseBtn:hover {
+      background-color: #c0392b;
     }
 
     .word-block {
@@ -31,11 +67,33 @@
       min-height: 50px;
       background-color: #f9f9f9;
       display: inline-block;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      font-size: 1.1em;
+    }
+
+    #wordsContainer .word {
+      background-color: #1abc9c;
+      color: white;
+    }
+
+    #translationContainer .word {
+      background-color: #3498db;
+      color: white;
+    }
+
+    #phraseContainer .word {
+      background-color: #e74c3c;
+      color: white;
     }
 
     #learnedWords {
       margin-top: 40px;
       font-size: 16px;
+    }
+
+    #learnedWords h2 {
+      color: #2c3e50;
     }
 
     #learnedWords ul {
@@ -46,24 +104,33 @@
     #learnedWords li {
       margin: 5px 0;
       color: green;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
 
-  <h1>Learn English</h1>
+  <div class="container">
+    <h1>Learn English</h1>
 
-  <button id="getWordsBtn">Get Words</button>
-  <button id="translateBtn" disabled>Translate</button>
-  <button id="getPhraseBtn" disabled>Get Phrase</button>
+    <button id="getWordsBtn">Get Words</button>
+    <button id="translateBtn" disabled>Translate</button>
+    <button id="getPhraseBtn" disabled>Get Phrase</button>
 
-  <div class="word-block" id="wordsContainer"></div>
-  <div class="word-block" id="translationContainer"></div>
-  <div class="word-block" id="phraseContainer"></div>
+    <div class="word-block" id="wordsContainer"></div>
+    <div class="word-block" id="translationContainer"></div>
+    <div class="word-block" id="phraseContainer"></div>
 
-  <div id="learnedWords">
-    <h2>Learned Words:</h2>
-    <ul id="learnedWordsList"></ul>
+    <div id="learnedWords">
+      <h2>Learned Words:</h2>
+      <ul id="learnedWordsList"></ul>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
