@@ -166,11 +166,15 @@
       displayWords();
       document.getElementById('translationContainer').textContent = ''; // Limpa a tradução anterior
       document.getElementById('phraseContainer').textContent = ''; // Limpa a frase anterior
-      document.getElementById('translateBtn').disabled = true;
-      document.getElementById('getPhraseBtn').disabled = true;
+      document.getElementById('translateBtn').disabled = false;
+      document.getElementById('getPhraseBtn').disabled = true; // Garantir que só habilitará após tradução
     });
 
-    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
+    document.getElementById('translateBtn').addEventListener('click', () => {
+      displayTranslations();
+      document.getElementById('getPhraseBtn').disabled = false; // Habilita "Get Phrase" após tradução
+    });
+
     document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
     window.onload = loadExcelFile;
