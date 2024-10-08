@@ -202,7 +202,7 @@
   <div id="wordModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <h3>Word Details</h3>
+      <h3>Detalhes</h3>
       <p id="modalWord"></p>
       <p id="modalTranslation"></p>
       <p id="modalPhrase"></p>
@@ -311,8 +311,8 @@
       const wordDetails = wordsData[usedIndexes[index]];
 
       document.getElementById('modalWord').textContent = `Palavra: ${wordDetails[0]}`;
-      document.getElementById('modalTranslation').textContent = `Translation: ${wordDetails[1]}`;
-      document.getElementById('modalPhrase').textContent = `Phrase: ${wordDetails[2]}`;
+      document.getElementById('modalTranslation').textContent = `Tradução: ${wordDetails[1]}`;
+      document.getElementById('modalPhrase').textContent = `Frase: ${wordDetails[2]}`;
       
       modal.style.display = 'block';
     }
