@@ -250,13 +250,13 @@
   document.getElementById('getPhraseBtn').disabled = true;
   document.getElementById('translationContainer').innerHTML = '';
   document.getElementById('phraseContainer').innerHTML = '';
+  document.getElementById('commentField').value = '';  // Limpa o campo de comentário
 }
 
 document.getElementById('getWordsBtn').addEventListener('click', () => {
-  resetButtons(); // Reseta os botões e containers antes de exibir novas palavras
+  resetButtons(); // Reseta os botões, containers e campo de comentário antes de exibir novas palavras
   displayWords();
 });
-
     function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
         alert('All words have been used!');
