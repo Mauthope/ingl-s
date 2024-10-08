@@ -52,8 +52,10 @@
     #getPhraseBtn:hover {
       background-color: #c0392b;
     }
-
-    .word-block {
+    #resetBtn:hover {
+      color: #b3b3b3;
+    
+      .word-block {
       display: flex;
       justify-content: center;
       gap: 20px;
@@ -197,7 +199,8 @@
 
 
   </div>
-
+    <button id="resetBtn">Reset</button> <!-- Botão reset discreto -->
+  </div>
   <!-- Modal (Pop-up) -->
   <div id="wordModal" class="modal">
     <div class="modal-content">
@@ -333,6 +336,21 @@
     document.getElementById('translateBtn').addEventListener('click', displayTranslations);
     document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
+        // Função para o botão Reset
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset the learned words and start over?')) {
+        localStorage.clear();
+        learnedWords = [];
+        usedIndexes = [];
+        updateLearnedWordsList();
+        document.getElementById('wordsContainer').innerHTML = '';
+        document.getElementById('translationContainer').innerHTML = '';
+        document.getElementById('phraseContainer').innerHTML = '';
+        document.getElementById('translateBtn').disabled = true;
+        document.getElementById('getPhraseBtn').disabled = true;
+      }
+    });
+    
     loadExcelFile();
   </script>
 
