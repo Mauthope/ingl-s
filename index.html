@@ -114,7 +114,9 @@
         addLearnedWords(word);
       });
 
+      // Habilita o botão de tradução
       document.getElementById('translateBtn').disabled = false;
+      document.getElementById('getPhraseBtn').disabled = true; // Desabilita 'Get Phrase' até que as traduções sejam mostradas
     }
 
     function displayTranslations() {
@@ -128,6 +130,7 @@
         translationContainer.appendChild(translationBlock);
       });
 
+      // Habilita o botão de frases
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
@@ -161,8 +164,8 @@
 
     document.getElementById('getWordsBtn').addEventListener('click', () => {
       displayWords();
-      document.getElementById('translationContainer').textContent = '';
-      document.getElementById('phraseContainer').textContent = '';
+      document.getElementById('translationContainer').textContent = ''; // Limpa a tradução anterior
+      document.getElementById('phraseContainer').textContent = ''; // Limpa a frase anterior
       document.getElementById('translateBtn').disabled = true;
       document.getElementById('getPhraseBtn').disabled = true;
     });
