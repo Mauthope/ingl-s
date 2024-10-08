@@ -195,6 +195,7 @@
     <div class="word-block" id="wordsContainer"></div>
     <div class="word-block" id="translationContainer"></div>
     <div class="word-block" id="phraseContainer"></div>
+    
     <div id="commentSection">
       <h2>Rascunho</h2>
       <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
@@ -250,7 +251,7 @@
   document.getElementById('getPhraseBtn').disabled = true;
   document.getElementById('translationContainer').innerHTML = '';
   document.getElementById('phraseContainer').innerHTML = '';
-  document.getElementById('commentField').value = '';  // Limpa o campo de comentário
+  document.getElementById('commentSection').value = '';  // Limpa o campo de comentário
 }
 
 document.getElementById('getWordsBtn').addEventListener('click', () => {
