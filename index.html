@@ -245,6 +245,17 @@
       }
       return indexes;
     }
+    function resetButtons() {
+  document.getElementById('translateBtn').disabled = true;
+  document.getElementById('getPhraseBtn').disabled = true;
+  document.getElementById('translationContainer').innerHTML = '';
+  document.getElementById('phraseContainer').innerHTML = '';
+}
+
+document.getElementById('getWordsBtn').addEventListener('click', () => {
+  resetButtons(); // Reseta os botões e containers antes de exibir novas palavras
+  displayWords();
+});
 
     function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
