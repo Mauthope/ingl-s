@@ -147,6 +147,7 @@
       border-radius: 10px;
       display: block;
       margin: 20px auto;
+      cursor: crosshair;
     }
 
     .container {
@@ -189,11 +190,6 @@
       text-decoration: none;
       cursor: pointer;
     }
-
-    #drawingCanvas {
-      border: 1px solid black;
-      cursor: crosshair;
-    }
   </style>
 </head>
 <body>
@@ -220,7 +216,6 @@
       <h2>Palavras aprendidas</h2>
       <ul id="learnedWordsList"></ul>
     </div>
-  </div>
     <button id="resetBtn">Reset</button> <!-- Botão reset discreto -->
   </div>
   
@@ -293,46 +288,50 @@
         const wordBlock = document.createElement('div');
         wordBlock.classList.add('word');
         wordBlock.textContent = word;
+        wordBlock.addEventListener('click', () => displayWordDetails(index));
         wordsContainer.appendChild(wordBlock);
-        addLearnedWords(word);
       });
-
-      document.getElementById('translateBtn').disabled = false;
-      document.getElementById('getPhraseBtn').disabled = true;
     }
 
-    function displayTranslations() {
-      const translationContainer = document.getElementById('translationContainer');
-      translationContainer.innerHTML = '';
-      currentWordsIndexes.forEach(index => {
-        const translation = wordsData[index][1];
-        const translationBlock = document.createElement('div');
-        translationBlock.classList.add('word');
-        translationBlock.textContent = translation;
-        translationContainer.appendChild(translationBlock);
-      });
+    function displayWordDetails(index) {
+      const word = wordsData[index][0];
+      const translation = wordsData[index][1];
+      const phrase = wordsData[index][2];
+      
+      document.getElementById('modalWord').textContent = `Palavra: ${word}`;
+      document.getElementById('modalTranslation').textContent = `Tradução: ${translation}`;
+      document.getElementById('modalPhrase').textContent = `Frase: ${phrase}`;
 
+      const modal = document.getElementById('wordModal');
+      modal.style.display = 'block';
+      
+      document.querySelector('.close').onclick = function() {
+        modal.style.display = 'none';
+      };
+      
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      };
+
+      // Enable translation and phrase buttons
+      document.getElementById('translateBtn').disabled = false;
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
-    function displayPhrases() {
-      const phraseContainer = document.getElementById('phraseContainer');
-      phraseContainer.innerHTML = '';
-      currentWordsIndexes.forEach(index => {
-        const phrase = wordsData[index][2];
-        const phraseBlock = document.createElement('div');
-        phraseBlock.classList.add('word');
-        phraseBlock.textContent = phrase;
-        phraseContainer.appendChild(phraseBlock);
-      });
-    }
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      reset();
+      clearCanvas(); // Limpa o canvas ao clicar no botão "Reset"
+    });
 
-    function addLearnedWords(word) {
-      if (!learnedWords.includes(word)) {
-        learnedWords.push(word);
-        localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
-        updateLearnedWordsList();
-      }
+    function reset() {
+      usedIndexes = [];
+      localStorage.removeItem('usedIndexes');
+      learnedWords = [];
+      localStorage.removeItem('learnedWords');
+      document.getElementById('learnedWordsList').innerHTML = '';
+      alert('Dados resetados com sucesso!');
     }
 
     function updateLearnedWordsList() {
@@ -341,88 +340,69 @@
       learnedWords.forEach(word => {
         const li = document.createElement('li');
         li.textContent = word;
+        li.addEventListener('click', () => {
+          learnedWords = learnedWords.filter(item => item !== word);
+          localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
+          updateLearnedWordsList();
+        });
         learnedWordsList.appendChild(li);
       });
     }
 
-    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
-    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
+    // Canvas Drawing Logic
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Botão Reset
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      localStorage.removeItem('usedIndexes');
-      usedIndexes = [];
-      alert('Words reset. You can start over!');
-      resetButtons();
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function draw(e) {
+      if (!isDrawing) return;
+      ctx.lineWidth = 5; // Define a largura da linha
+      ctx.lineCap = 'round'; // Define o formato da ponta da linha
+      ctx.strokeStyle = 'black'; // Define a cor da linha
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+      draw(e);
     });
 
-    // Modal
-    const modal = document.getElementById("wordModal");
-    const span = document.getElementsByClassName("close")[0];
-    span.onclick = function () {
-      modal.style.display = "none";
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+
+    // Touch events for mobile devices
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Evita a rolagem da página
+      isDrawing = true;
+      const touch = e.touches[0];
+      [lastX, lastY] = [touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top];
+      draw(touch);
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // Evita a rolagem da página
+      const touch = e.touches[0];
+      draw(touch);
+    });
+
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchcancel', () => isDrawing = false);
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    window.onclick = function (event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-
-    // Canvas para desenhar
-const canvas = document.getElementById("drawingCanvas");
-const ctx = canvas.getContext("2d");
-let drawing = false;
-
-function getMousePos(canvas, evt) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top,
-  };
-}
-
-canvas.addEventListener("mousedown", (event) => {
-  drawing = true;
-  const pos = getMousePos(canvas, event);
-  ctx.moveTo(pos.x, pos.y);
-});
-
-canvas.addEventListener("mousemove", (event) => {
-  if (drawing) {
-    const pos = getMousePos(canvas, event);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  }
-});
-
-canvas.addEventListener("mouseup", () => {
-  drawing = false;
-});
-
-canvas.addEventListener("touchstart", (event) => {
-  drawing = true;
-  const touch = event.touches[0];
-  const pos = getMousePos(canvas, touch);
-  ctx.moveTo(pos.x, pos.y);
-  event.preventDefault(); // Impede o scrolling da página
-});
-
-canvas.addEventListener("touchmove", (event) => {
-  if (drawing) {
-    const touch = event.touches[0];
-    const pos = getMousePos(canvas, touch);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-  }
-  event.preventDefault(); // Impede o scrolling da página
-});
-
-canvas.addEventListener("touchend", () => {
-  drawing = false;
-});
-
-    loadExcelFile();
+    window.onload = loadExcelFile;
   </script>
 </body>
 </html>
