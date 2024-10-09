@@ -267,6 +267,7 @@
 
     document.getElementById('getWordsBtn').addEventListener('click', () => {
       resetButtons();
+      clearCanvas(); // Limpa o canvas ao clicar no botão "Palavras"
       displayWords();
     });
 
@@ -364,6 +365,11 @@
     canvas.addEventListener('mouseleave', () => {
       drawing = false;
     });
+
+    // Limpar o canvas ao clicar no botão "Palavras"
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     // Reset button logic
     document.getElementById('resetBtn').addEventListener('click', () => {
