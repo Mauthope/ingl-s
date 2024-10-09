@@ -198,7 +198,7 @@
     
     <div id="commentSection">
       <h2>Rascunho</h2>
-      <textarea id="inputField" rows="10" cols="30" placeholder="Digite aqui ou desenhe no canvas"></textarea>
+      <textarea id="draftInput" rows="10" cols="50" placeholder="Escreva aqui ou use a Apple Pencil..."></textarea>
       <canvas id="drawingCanvas" width="800" height="600" style="border: 1px solid #000;"></canvas>
 
       <br>
@@ -374,34 +374,27 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
 
 const canvas = document.getElementById('drawingCanvas');
 const context = canvas.getContext('2d');
-const inputField = document.getElementById('inputField');
-const palavrasBtn = document.getElementById('palavrasBtn');
-
 let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
-// Função para resetar o campo de texto e o canvas
-palavrasBtn.addEventListener('click', () => {
-    inputField.value = ''; // Limpa o campo de texto
-    context.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
-});
-
-// Iniciar o desenho no canvas
+// Iniciar o desenho
 canvas.addEventListener('mousedown', (e) => {
     isDrawing = true;
     [lastX, lastY] = [e.offsetX, e.offsetY];
 });
 
+// Parar o desenho
 canvas.addEventListener('mouseup', () => {
     isDrawing = false;
 });
 
+// Desenhar no canvas
 canvas.addEventListener('mousemove', (e) => {
     if (!isDrawing) return;
 
-    context.strokeStyle = '#000';
-    context.lineWidth = 2;
+    context.strokeStyle = '#000'; // Cor do traço
+    context.lineWidth = 2; // Espessura do traço
     context.lineJoin = 'round';
     context.lineCap = 'round';
 
@@ -415,7 +408,7 @@ canvas.addEventListener('mousemove', (e) => {
 
 // Para suportar toques com a Apple Pencil
 canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Evita o comportamento padrão
     isDrawing = true;
     const touch = e.touches[0];
     lastX = touch.clientX - canvas.getBoundingClientRect().left;
@@ -433,8 +426,8 @@ canvas.addEventListener('touchmove', (e) => {
     const currentX = touch.clientX - canvas.getBoundingClientRect().left;
     const currentY = touch.clientY - canvas.getBoundingClientRect().top;
 
-    context.strokeStyle = '#000';
-    context.lineWidth = 2;
+    context.strokeStyle = '#000'; // Cor do traço
+    context.lineWidth = 2; // Espessura do traço
     context.lineJoin = 'round';
     context.lineCap = 'round';
 
@@ -444,6 +437,14 @@ canvas.addEventListener('touchmove', (e) => {
     context.stroke();
 
     [lastX, lastY] = [currentX, currentY];
+});
+
+document.getElementById('palavrasBtn').addEventListener('click', () => {
+    // Limpar o campo de texto
+    document.getElementById('draftInput').value = '';
+
+    // Limpar o canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
 });
 
 
