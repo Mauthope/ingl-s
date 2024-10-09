@@ -224,6 +224,12 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
+
+    const canvas = document.getElementById('drawingCanvas');
+const context = canvas.getContext('2d');
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
     let wordsData = [];
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
     let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
@@ -372,11 +378,7 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
       }
     });
 
-const canvas = document.getElementById('drawingCanvas');
-const context = canvas.getContext('2d');
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
+
 
 // Iniciar o desenho
 canvas.addEventListener('mousedown', (e) => {
