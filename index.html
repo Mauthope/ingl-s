@@ -349,58 +349,58 @@
       });
     }
 
-    // Canvas Drawing Logic
-    const canvas = document.getElementById('drawingCanvas');
-    const ctx = canvas.getContext('2d');
+// Canvas para desenhar
+const canvas = document.getElementById("drawingCanvas");
+const ctx = canvas.getContext("2d");
+let drawing = false;
 
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
+function getMousePos(canvas, evt) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top,
+  };
+}
 
-    function draw(e) {
-      if (!isDrawing) return;
-      ctx.lineWidth = 5; // Define a largura da linha
-      ctx.lineCap = 'round'; // Define o formato da ponta da linha
-      ctx.strokeStyle = 'black'; // Define a cor da linha
+canvas.addEventListener("mousedown", (event) => {
+  drawing = true;
+  const pos = getMousePos(canvas, event);
+  ctx.moveTo(pos.x, pos.y);
+});
 
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.stroke();
-      [lastX, lastY] = [e.offsetX, e.offsetY];
-    }
+canvas.addEventListener("mousemove", (event) => {
+  if (drawing) {
+    const pos = getMousePos(canvas, event);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }
+});
 
-    canvas.addEventListener('mousedown', (e) => {
-      isDrawing = true;
-      [lastX, lastY] = [e.offsetX, e.offsetY];
-      draw(e);
-    });
+canvas.addEventListener("mouseup", () => {
+  drawing = false;
+});
 
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
+canvas.addEventListener("touchstart", (event) => {
+  drawing = true;
+  const touch = event.touches[0];
+  const pos = getMousePos(canvas, touch);
+  ctx.moveTo(pos.x, pos.y);
+  event.preventDefault(); // Impede o scrolling da página
+});
 
-    // Touch events for mobile devices
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // Evita a rolagem da página
-      isDrawing = true;
-      const touch = e.touches[0];
-      [lastX, lastY] = [touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top];
-      draw(touch);
-    });
+canvas.addEventListener("touchmove", (event) => {
+  if (drawing) {
+    const touch = event.touches[0];
+    const pos = getMousePos(canvas, touch);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+  }
+  event.preventDefault(); // Impede o scrolling da página
+});
 
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault(); // Evita a rolagem da página
-      const touch = e.touches[0];
-      draw(touch);
-    });
-
-    canvas.addEventListener('touchend', () => isDrawing = false);
-    canvas.addEventListener('touchcancel', () => isDrawing = false);
-
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+canvas.addEventListener("touchend", () => {
+  drawing = false;
+});
 
     window.onload = loadExcelFile;
   </script>
