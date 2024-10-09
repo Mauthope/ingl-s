@@ -190,7 +190,7 @@
       cursor: pointer;
     }
 
-        #drawingCanvas {
+    #drawingCanvas {
       border: 1px solid black;
       cursor: crosshair;
     }
@@ -311,6 +311,7 @@
         translationBlock.textContent = translation;
         translationContainer.appendChild(translationBlock);
       });
+
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
@@ -344,73 +345,56 @@
       });
     }
 
-    // Canvas drawing logic
-    const canvas = document.getElementById('drawingCanvas');
-    const ctx = canvas.getContext('2d');
-    let drawing = true;
+    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
+    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
-    canvas.addEventListener('mousedown', (e) => {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
+    // Botão Reset
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      localStorage.removeItem('usedIndexes');
+      usedIndexes = [];
+      alert('Words reset. You can start over!');
+      resetButtons();
     });
 
-    canvas.addEventListener('mousemove', (e) => {
+    // Modal
+    const modal = document.getElementById("wordModal");
+    const span = document.getElementsByClassName("close")[0];
+    span.onclick = function () {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Canvas para desenhar
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", (event) => {
+      drawing = true;
+      ctx.moveTo(event.offsetX, event.offsetY);
+    });
+
+    canvas.addEventListener("mousemove", (event) => {
       if (drawing) {
-        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.lineTo(event.offsetX, event.offsetY);
         ctx.stroke();
       }
     });
 
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-      ctx.closePath();
-    });
-
-    canvas.addEventListener('mouseleave', () => {
+    canvas.addEventListener("mouseup", () => {
       drawing = false;
     });
 
-    // Limpar o canvas ao clicar no botão "Palavras"
     function clearCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    // Reset button logic
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-      usedIndexes = [];
-      learnedWords = [];
-      localStorage.clear();
-      updateLearnedWordsList();
-      resetButtons();
-    });
-
-    // Modal logic
-    const modal = document.getElementById('wordModal');
-    const span = document.getElementsByClassName('close')[0];
-
-    function showModal(word, translation, phrase) {
-      document.getElementById('modalWord').textContent = `Palavra: ${word}`;
-      document.getElementById('modalTranslation').textContent = `Tradução: ${translation}`;
-      document.getElementById('modalPhrase').textContent = `Frase: ${phrase}`;
-      modal.style.display = 'block';
-    }
-
-    span.onclick = function() {
-      modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = 'none';
-      }
-    }
-
-    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
-    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
-
-    window.addEventListener('load', loadExcelFile);
+    loadExcelFile();
   </script>
 </body>
 </html>
