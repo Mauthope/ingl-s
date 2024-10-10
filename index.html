@@ -181,6 +181,12 @@
       text-decoration: none;
       cursor: pointer;
     }
+
+    #drawingCanvas {
+  border: 1px solid #3498db; /* Cor da borda do canvas */
+  background-color: #fff; /* Fundo branco para o canvas */
+  cursor: crosshair; /* Muda o cursor para uma cruz ao passar sobre o canvas */
+}
   </style>
 </head>
 <body>
@@ -200,6 +206,9 @@
       <h2>Rascunho</h2>
       <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
       <br>
+      <div id="drawingSection">
+  <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
+</div>
     </div>
     
     <div id="learnedWords">
@@ -369,6 +378,52 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
         document.getElementById('getPhraseBtn').disabled = true;
       }
     });
+
+const canvas = document.getElementById('drawingCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+
+// Funções de início e fim do desenho
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mousemove', draw);
+
+// Funções para toque em dispositivos móveis
+canvas.addEventListener('touchstart', startDrawing);
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('touchmove', draw);
+
+function startDrawing(e) {
+  drawing = true;
+  ctx.beginPath();
+  ctx.moveTo(getMousePos(e).x, getMousePos(e).y);
+}
+
+function stopDrawing() {
+  drawing = false;
+  ctx.closePath();
+}
+
+function draw(e) {
+  if (!drawing) return;
+  
+  ctx.lineWidth = 2; // Largura da linha
+  ctx.lineCap = 'round'; // Estilo de ponta da linha
+  ctx.strokeStyle = '#3498db'; // Cor da linha
+
+  ctx.lineTo(getMousePos(e).x, getMousePos(e).y);
+  ctx.stroke();
+}
+
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX || (e.touches[0].clientX); // Para toque
+  const y = e.clientY || (e.touches[0].clientY); // Para toque
+  return {
+    x: x - rect.left,
+    y: y - rect.top
+  };
+}
     
     loadExcelFile();
   </script>
