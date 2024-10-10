@@ -417,51 +417,33 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
       }
     });
 
-const canvas = document.getElementById('drawingCanvas');
-const ctx = canvas.getContext('2d');
-let drawing = false;
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
 
-// Funções de início e fim do desenho
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mouseup', stopDrawing);
-canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mousedown', function(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
 
-// Funções para toque em dispositivos móveis
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchend', stopDrawing);
-canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('mousemove', function(e) {
+            if (isDrawing) {
+                e.preventDefault(); // Previne o comportamento padrão (rolagem)
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+            }
+        });
 
-function startDrawing(e) {
-  drawing = true;
-  ctx.beginPath();
-  ctx.moveTo(getMousePos(e).x, getMousePos(e).y);
-}
+        canvas.addEventListener('mouseup', function() {
+            isDrawing = false;
+            ctx.closePath();
+        });
 
-function stopDrawing() {
-  drawing = false;
-  ctx.closePath();
-}
-
-function draw(e) {
-  if (!drawing) return;
-  
-  ctx.lineWidth = 2; // Largura da linha
-  ctx.lineCap = 'round'; // Estilo de ponta da linha
-  ctx.strokeStyle = '#3498db'; // Cor da linha
-
-  ctx.lineTo(getMousePos(e).x, getMousePos(e).y);
-  ctx.stroke();
-}
-
-function getMousePos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX || (e.touches[0].clientX); // Para toque
-  const y = e.clientY || (e.touches[0].clientY); // Para toque
-  return {
-    x: x - rect.left,
-    y: y - rect.top
-  };
-}
+        // Para dispositivos móveis
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Impede a rolagem enquanto desenha
+        }, { passive: false });
 
 // Adiciona o botão para limpar o canvas
 const clearButton = document.getElementById('clearButton');
