@@ -206,9 +206,10 @@
       <h2>Rascunho</h2>
       <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
       <br>
-      <div id="drawingSection">
+<div id="drawingSection">
   <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
 </div>
+      <button id="clearCanvasBtn">Limpar Canvas</button>
     </div>
     
     <div id="learnedWords">
@@ -424,6 +425,8 @@ function getMousePos(e) {
     y: y - rect.top
   };
 }
+
+clearCanvasBtn.addEventListener('click', clearCanvas);
     
     loadExcelFile();
   </script>
