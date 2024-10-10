@@ -209,7 +209,7 @@
 <div id="drawingSection">
   <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
 </div>
-      <button id="clearCanvasBtn">Limpar Canvas</button>
+      <button id="clearButton">Limpar Canvas</button>
     </div>
     
     <div id="learnedWords">
@@ -426,7 +426,10 @@ function getMousePos(e) {
   };
 }
 
-clearCanvasBtn.addEventListener('click', clearCanvas);
+ // Função para limpar o canvas
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
     
     loadExcelFile();
   </script>
