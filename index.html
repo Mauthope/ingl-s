@@ -426,10 +426,13 @@ function getMousePos(e) {
   };
 }
 
- // Função para limpar o canvas
+  // Função para limpar o canvas
     function clearCanvas() {
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
+
+    // Adiciona um evento de clique ao botão
+    document.getElementById('clearButton').addEventListener('click', clearCanvas);
     
     loadExcelFile();
   </script>
