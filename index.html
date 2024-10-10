@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprenda Palavras</title>
-    <style>
-       body {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprendendo Inglês com Mauricio</title>
+  <style>
+    body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
@@ -54,15 +54,19 @@
     }
 
     #resetBtn {
-      background-color: transparent;
-      color: white;
-      border: none;
-      font-size: 0.8em;
-      cursor: pointer;
+      background-color: #e67e22;
     }
 
     #resetBtn:hover {
-      color: #b4b4b4;
+      background-color: #d35400;
+    }
+
+    #clearCanvasBtn {
+      background-color: #e74c3c;
+    }
+
+    #clearCanvasBtn:hover {
+      background-color: #c0392b;
     }
 
     .word-block {
@@ -134,14 +138,6 @@
       resize: none;
     }
 
-    #commentSection button {
-      background-color: #e67e22;
-    }
-
-    #commentSection button:hover {
-      background-color: #d35400;
-    }
-
     #drawingCanvas {
       border: 2px solid #3498db;
       border-radius: 10px;
@@ -190,186 +186,190 @@
       text-decoration: none;
       cursor: pointer;
     }
-    </style>
+  </style>
 </head>
 <body>
-    <h1>Aprenda Palavras</h1>
-    <div id="wordsContainer"></div>
-    <button id="translateBtn" disabled>Traduzir</button>
+
+  <div class="container">
+    <h1>Aprendendo Inglês com Mauricio</h1>
+
+    <button id="getWordsBtn">Palavras</button>
+    <button id="translateBtn" disabled>Tradução</button>
     <button id="getPhraseBtn" disabled>Frase</button>
-    <button id="resetBtn">Resetar</button>
-    <h2>Tradução</h2>
-    <div id="translationContainer"></div>
-    <h2>Frase</h2>
-    <div id="phraseContainer"></div>
+
+    <div class="word-block" id="wordsContainer"></div>
+    <div class="word-block" id="translationContainer"></div>
+    <div class="word-block" id="phraseContainer"></div>
     
-    <button id="activateCanvasBtn">Ativar Canvas</button>
-    <button id="clearCanvasBtn">Limpar Canvas</button>
-    <canvas id="drawingCanvas"></canvas>
-    
-    <div id="wordModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalWord"></h2>
-            <p><strong>Tradução:</strong> <span id="modalTranslation"></span></p>
-            <p><strong>Frase:</strong> <span id="modalPhrase"></span></p>
-        </div>
+    <div id="commentSection">
+      <h2>Rascunho</h2>
+      <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
+      <br>
+      <canvas id="drawingCanvas" width="400" height="200"></canvas>
+      <button id="clearCanvasBtn">Limpar Área de Desenho</button>
     </div>
+    
+    <div id="learnedWords">
+      <h2>Palavras aprendidas</h2>
+      <ul id="learnedWordsList"></ul>
+    </div>
+    <button id="resetBtn">Reset</button> <!-- Botão reset discreto -->
+  </div>
+  
+  <!-- Modal (Pop-up) -->
+  <div id="wordModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Detalhes</h3>
+      <p id="modalWord"></p>
+      <p id="modalTranslation"></p>
+      <p id="modalPhrase"></p>
+    </div>
+  </div>
 
-    <ul id="learnedWordsList"></ul>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    let wordsData = [];
+    let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
+    let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
+    let currentWordsIndexes = [];
 
-    <script>
-        const wordsData = [
-            // Adicione suas palavras, traduções e frases aqui
-            ["cachorro", "dog", "The dog is barking."],
-            ["gato", "cat", "The cat is sleeping."],
-            ["pássaro", "bird", "The bird is singing."]
-            // ...
-        ];
-        
-        let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
-        let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
+    async function loadExcelFile() {
+      const response = await fetch('ingles.xlsx');
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      wordsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      updateLearnedWordsList();
+    }
 
-        function getRandomUnusedIndexes() {
-            let availableIndexes = [];
-            for (let i = 0; i < wordsData.length; i++) {
-                if (!usedIndexes.includes(i)) {
-                    availableIndexes.push(i);
-                }
-            }
-            return availableIndexes.sort(() => Math.random() - 0.5).slice(0, 3); // Seleciona 3 palavras aleatórias
+    function getRandomUnusedIndexes() {
+      let indexes = [];
+      while (indexes.length < 3) {
+        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1;
+        if (!usedIndexes.includes(index) && !indexes.includes(index)) {
+          indexes.push(index);
         }
+      }
+      return indexes;
+    }
 
-        function loadExcelFile() {
-            document.getElementById('wordsContainer').innerHTML = '';
-            const currentWordsIndexes = getRandomUnusedIndexes();
-            currentWordsIndexes.forEach(index => {
-                const wordBlock = document.createElement('div');
-                wordBlock.classList.add('word');
-                wordBlock.innerText = wordsData[index][0];
-                wordBlock.onclick = function() {
-                    showWordDetails(index);
-                    document.getElementById('translateBtn').disabled = false;
-                    document.getElementById('getPhraseBtn').disabled = false;
-                };
-                document.getElementById('wordsContainer').appendChild(wordBlock);
-            });
-            usedIndexes = [...usedIndexes, ...currentWordsIndexes];
-            localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
-        }
+    function resetButtons() {
+      document.getElementById('translateBtn').disabled = true;
+      document.getElementById('getPhraseBtn').disabled = true;
+      document.getElementById('translationContainer').innerHTML = '';
+      document.getElementById('phraseContainer').innerHTML = '';
+      document.getElementById('commentSection').value = '';
+    }
 
-        function showWordDetails(index) {
-            const modal = document.getElementById('wordModal');
-            document.getElementById('modalWord').innerText = wordsData[index][0];
-            document.getElementById('modalTranslation').innerText = wordsData[index][1];
-            document.getElementById('modalPhrase').innerText = wordsData[index][2];
-            modal.style.display = 'block';
-        }
+    document.getElementById('getWordsBtn').addEventListener('click', () => {
+      resetButtons();
+      clearCanvas(); // Limpa o canvas ao clicar no botão "Palavras"
+      displayWords();
+    });
 
-        document.querySelector('.close').onclick = function() {
-            const modal = document.getElementById('wordModal');
-            modal.style.display = 'none';
-        }
+    function displayWords() {
+      if (usedIndexes.length >= wordsData.length - 1) {
+        alert('All words have been used!');
+        return;
+      }
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('wordModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
+      currentWordsIndexes = getRandomUnusedIndexes();
+      usedIndexes.push(...currentWordsIndexes);
+      localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
 
-        document.getElementById('translateBtn').addEventListener('click', () => {
-            resetButtons();
-            clearCanvas(); // Limpa o canvas ao clicar no botão "Traduzir"
-            displayTranslation(currentWordsIndexes);
-        });
+      const wordsContainer = document.getElementById('wordsContainer');
+      wordsContainer.innerHTML = '';
+      currentWordsIndexes.forEach(index => {
+        const word = wordsData[index][0];
+        const wordBlock = document.createElement('div');
+        wordBlock.classList.add('word');
+        wordBlock.textContent = word;
+        wordBlock.addEventListener('click', () => displayWordDetails(index));
+        wordsContainer.appendChild(wordBlock);
+      });
+    }
 
-        function displayTranslation(indexes) {
-            indexes.forEach(index => {
-                const translationBlock = document.createElement('div');
-                translationBlock.classList.add('word');
-                translationBlock.innerText = wordsData[index][1];
-                document.getElementById('translationContainer').appendChild(translationBlock);
-            });
-        }
+    function displayWordDetails(index) {
+      const word = wordsData[index][0];
+      const translation = wordsData[index][1];
+      const phrase = wordsData[index][2];
+      
+      document.getElementById('modalWord').textContent = `Palavra: ${word}`;
+      document.getElementById('modalTranslation').textContent = `Tradução: ${translation}`;
+      document.getElementById('modalPhrase').textContent = `Frase: ${phrase}`;
+      
+      const modal = document.getElementById('wordModal');
+      modal.style.display = 'block';
 
-        document.getElementById('getPhraseBtn').addEventListener('click', () => {
-            resetButtons();
-            clearCanvas(); // Limpa o canvas ao clicar no botão "Frase"
-            displayPhrase(currentWordsIndexes);
-        });
+      // Add the word to the learned list
+      if (!learnedWords.includes(word)) {
+        learnedWords.push(word);
+        localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
+        updateLearnedWordsList();
+      }
+    }
 
-        function displayPhrase(indexes) {
-            indexes.forEach(index => {
-                const phraseBlock = document.createElement('div');
-                phraseBlock.classList.add('word');
-                phraseBlock.innerText = wordsData[index][2];
-                document.getElementById('phraseContainer').appendChild(phraseBlock);
-            });
-        }
+    function updateLearnedWordsList() {
+      const learnedWordsList = document.getElementById('learnedWordsList');
+      learnedWordsList.innerHTML = '';
+      learnedWords.forEach(word => {
+        const listItem = document.createElement('li');
+        listItem.textContent = word;
+        listItem.addEventListener('click', () => alert(`You clicked on ${word}`));
+        learnedWordsList.appendChild(listItem);
+      });
+    }
 
-        function updateLearnedWordsList() {
-            const learnedWordsList = document.getElementById('learnedWordsList');
-            learnedWordsList.innerHTML = '';
-            learnedWords.forEach(word => {
-                const listItem = document.createElement('li');
-                listItem.innerText = word;
-                learnedWordsList.appendChild(listItem);
-            });
-        }
+    // Close the modal when the user clicks the 'x' button
+    document.querySelector('.close').addEventListener('click', () => {
+      document.getElementById('wordModal').style.display = 'none';
+    });
 
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            localStorage.removeItem('usedIndexes');
-            localStorage.removeItem('learnedWords');
-            learnedWords = [];
-            usedIndexes = [];
-            updateLearnedWordsList();
-            resetButtons();
-            clearCanvas();
-        });
+    // Close the modal if user clicks outside of it
+    window.onclick = (event) => {
+      if (event.target == document.getElementById('wordModal')) {
+        document.getElementById('wordModal').style.display = 'none';
+      }
+    };
 
-        function clearCanvas() {
-            const canvas = document.getElementById('drawingCanvas');
-            const context = canvas.getContext('2d');
-            context.clearRect(0, 0, canvas.width, canvas.height);
-        }
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      usedIndexes = [];
+      localStorage.removeItem('usedIndexes');
+      learnedWords = [];
+      localStorage.removeItem('learnedWords');
+      updateLearnedWordsList();
+      resetButtons();
+    });
 
-        document.getElementById('activateCanvasBtn').addEventListener('click', () => {
-            const canvas = document.getElementById('drawingCanvas');
-            canvas.style.display = 'block'; // Mostra o canvas
-            const context = canvas.getContext('2d');
+    document.getElementById('clearCanvasBtn').addEventListener('click', clearCanvas);
 
-            let drawing = false;
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
 
-            // Ativa o desenho
-            canvas.addEventListener('mousedown', (e) => {
-                drawing = true;
-                context.moveTo(e.offsetX, e.offsetY);
-            });
+    canvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
 
-            canvas.addEventListener('mousemove', (e) => {
-                if (drawing) {
-                    context.lineTo(e.offsetX, e.offsetY);
-                    context.stroke();
-                }
-            });
+    canvas.addEventListener('mousemove', (e) => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      }
+    });
 
-            canvas.addEventListener('mouseup', () => {
-                drawing = false;
-            });
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+    });
 
-            canvas.addEventListener('mouseout', () => {
-                drawing = false;
-            });
-        });
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
-        document.getElementById('clearCanvasBtn').addEventListener('click', () => {
-            clearCanvas(); // Chama a função para limpar o canvas
-        });
-
-        window.onload = function() {
-            loadExcelFile();
-        }
-    </script>
+    loadExcelFile();
+  </script>
 </body>
 </html>
