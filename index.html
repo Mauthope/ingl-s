@@ -288,20 +288,25 @@
 
 function getRandomUnusedIndexes() {
   let indexes = [];
-  // Verificar quantos índices não foram usados
-  let remainingIndexes = wordsData.length - 1 - usedIndexes.length;
-
-  while (indexes.length < Math.min(remainingIndexes, 3)) { // Sempre tenta pegar 3, mas não ultrapassa os disponíveis
+  // Enquanto o número de palavras a ser retornado for menor que 3, continue buscando
+  while (indexes.length < 3) {
     let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
-    if (!usedIndexes.includes(index) && !indexes.includes(index)) {
+
+    // Verifique se o índice já foi usado
+    if (!usedIndexes.includes(index)) {
       indexes.push(index);
+      usedIndexes.push(index); // Marque o índice como usado
+    }
+    
+    // Caso todos os índices tenham sido usados, e ainda faltarem palavras para retornar,
+    // reinicia o array de índices usados e começa de novo.
+    if (indexes.length === 3 && usedIndexes.length === wordsData.length - 1) {
+      usedIndexes = []; // Reseta os índices usados para permitir novas escolhas
     }
   }
 
   return indexes;
 }
-
-
 
     function resetButtons() {
   document.getElementById('translateBtn').disabled = true;
