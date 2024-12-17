@@ -286,9 +286,9 @@
       updateLearnedWordsList();
     }
 
-   function getRandomUnusedIndexes() {
+ function getRandomUnusedIndexes() {
   let indexes = [];
-  while (indexes.length < 3 && indexes.length < wordsData.length - 1) { // Garantir que não tente pegar mais que o número de palavras disponíveis
+  while (indexes.length < 3 && indexes.length < (wordsData.length - 1)) { // Garantir que haja palavras suficientes
     let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
     if (!usedIndexes.includes(index) && !indexes.includes(index)) {
       indexes.push(index);
@@ -296,6 +296,7 @@
   }
   return indexes;
 }
+
 
     function resetButtons() {
   document.getElementById('translateBtn').disabled = true;
