@@ -6,223 +6,187 @@
   <title>Aprendendo Inglês com Mauricio</title>
   <style>
     body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin-top: 2em;
-        background-color: #f0f0f5;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f0f0f5;
     }
 
     h1 {
-        color: #333;
-        font-size: 2.5em;
-        margin-bottom: 1em;
+      color: #333;
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
 
     button {
-        margin: 0.5em;
-        padding: 0.75em 1.5em;
-        font-size: 1em;
-        border: none;
-        border-radius: 0.5em;
-        color: #fff;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
     #getWordsBtn {
-        background-color: #1abc9c;
+      background-color: #1abc9c;
     }
 
     #getWordsBtn:hover {
-        background-color: #16a085;
+      background-color: #16a085;
     }
 
     #translateBtn {
-        background-color: #3498db;
+      background-color: #3498db;
     }
 
     #translateBtn:hover {
-        background-color: #2980b9;
+      background-color: #2980b9;
     }
 
     #getPhraseBtn {
-        background-color: #e74c3c;
+      background-color: #e74c3c;
     }
 
     #getPhraseBtn:hover {
-        background-color: #c0392b;
+      background-color: #c0392b;
     }
-
     #resetBtn {
-        background-color: transparent;
-        color: white;
-        border: none;
-        font-size: 0.8em;
-        cursor: pointer;
+      background-color: transparent;
+      color: white;
+      border: none;
+      font-size: 0.8em;
+      cursor: pointer;
     }
 
     #resetBtn:hover {
-        color: #b4b4b4;
+      color: #b4b4b4;
     }
-
-    .word-block {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap; /* Permite que os elementos se movam para a linha seguinte se necessário */
-        gap: 1em;
-        margin-top: 1em;
+    
+      .word-block {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
     }
 
     .word {
-        border: 1px solid #ccc;
-        padding: 1em;
-        width: 20%; /* Usando porcentagem para largura responsiva */
-        min-height: 50px;
-        background-color: #f9f9f9;
-        display: inline-block;
-        border-radius: 10px;
-        transition: transform 0.3s ease;
-        font-size: 1.1em;
-        flex: 1 1 150px; /* Flexível, ocupando espaço mínimo de 150px */
+      border: 1px solid #ccc;
+      padding: 20px;
+      width: 150px;
+      min-height: 50px;
+      background-color: #f9f9f9;
+      display: inline-block;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      font-size: 1.1em;
     }
 
     #wordsContainer .word {
-        background-color: #1abc9c;
-        color: white;
+      background-color: #1abc9c;
+      color: white;
     }
 
     #translationContainer .word {
-        background-color: #3498db;
-        color: white;
+      background-color: #3498db;
+      color: white;
     }
 
     #phraseContainer .word {
-        background-color: #e74c3c;
-        color: white;
+      background-color: #e74c3c;
+      color: white;
     }
 
     #learnedWords {
-        margin-top: 2em;
-        font-size: 1em;
+      margin-top: 40px;
+      font-size: 16px;
     }
 
     #learnedWords h2 {
-        color: #2c3e50;
+      color: #2c3e50;
     }
 
     #learnedWords ul {
-        list-style-type: none;
-        padding: 0;
+      list-style-type: none;
+      padding: 0;
     }
 
     #learnedWords li {
-        margin: 0.5em 0;
-        color: green;
-        font-weight: bold;
-        font-size: 1.2em;
-        cursor: pointer;
+      margin: 5px 0;
+      color: green;
+      font-weight: bold;
+      font-size: 1.2em;
+      cursor: pointer;
     }
 
     #commentSection {
-        margin-top: 2em;
+      margin-top: 40px;
     }
 
     #commentSection textarea {
-        width: 90%;
-        padding: 1em;
-        font-size: 1em;
-        border-radius: 10px;
-        border: 2px solid #3498db;
-        resize: none;
+      width: 90%;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 2px solid #3498db;
+      resize: none;
     }
 
     #commentSection button {
-        background-color: #e67e22;
+      background-color: #e67e22;
     }
 
     #commentSection button:hover {
-        background-color: #d35400;
+      background-color: #d35400;
     }
 
     .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 1em; /* Adiciona padding para espaços laterais */
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     /* Modal (Pop-up) */
     .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        background-color: rgba(0, 0, 0, 0.6); /* Black with opacity */
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      background-color: rgba(0, 0, 0, 0.6); /* Black with opacity */
     }
 
     .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 1em;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 400px;
-        border-radius: 10px;
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 10px;
     }
 
     .close {
-        color: #aaa;
-        float: right;
-        font-size: 1.75em; /* Tamanho maior para facilitar a visualização */
-        font-weight: bold;
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
     }
 
     .close:hover,
     .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     #drawingCanvas {
-        border-radius: 1px solid #d35400; /* Cor da borda do canvas */
-        background-color: #fff; /* Fundo branco para o canvas */
-        cursor: crosshair; /* Muda o cursor para uma cruz ao passar sobre o canvas */
-        max-width: 100%; /* Permite que o canvas não ultrapasse a largura do contêiner */
-        height: auto; /* Ajusta a altura automaticamente */
-    }
-
-    /* Media Queries para dispositivos menores */
-    @media (max-width: 600px) {
-        h1 {
-            font-size: 2em;
-        }
-
-        button {
-            font-size: 0.9em;
-            padding: 0.5em 1em; /* Reduz o padding em telas pequenas */
-        }
-
-        .word {
-            width: 45%; /* Reduz a largura das palavras em telas pequenas */
-        }
-
-        #learnedWords li {
-            font-size: 1em; /* Ajusta o tamanho da fonte para a lista */
-        }
-    }
-
-    @media (max-width: 400px) {
-        .word {
-            width: 90%; /* Ajusta para ocupar mais espaço em telas muito pequenas */
-        }
-
-        h1 {
-            font-size: 1.5em; /* Menor tamanho de fonte para telas pequenas */
-        }
-    }
+  border: 1px solid #3498db; /* Cor da borda do canvas */
+  background-color: #fff; /* Fundo branco para o canvas */
+  cursor: crosshair; /* Muda o cursor para uma cruz ao passar sobre o canvas */
+}
   </style>
 </head>
 <body>
@@ -242,10 +206,6 @@
       <h2>Rascunho</h2>
       <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
       <br>
-
-<div class="container">
-    <h1>Rascunho Apple pencil</h1></div>
-      
 <div id="drawingSection">
   <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
 </div>
@@ -286,19 +246,16 @@
       updateLearnedWordsList();
     }
 
-function getRandomWords() {
-  let indexes = [];
-
-  // Sempre busque 3 palavras aleatórias, permitindo repetição
-  for (let i = 0; i < 3; i++) {
-    let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
-    indexes.push(index);
-  }
-
-  return indexes;
-}
-
-
+    function getRandomUnusedIndexes() {
+      let indexes = [];
+      while (indexes.length < 3) {
+        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
+        if (!usedIndexes.includes(index) && !indexes.includes(index)) {
+          indexes.push(index);
+        }
+      }
+      return indexes;
+    }
     function resetButtons() {
   document.getElementById('translateBtn').disabled = true;
   document.getElementById('getPhraseBtn').disabled = true;
