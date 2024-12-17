@@ -286,16 +286,21 @@
       updateLearnedWordsList();
     }
 
- function getRandomUnusedIndexes() {
+function getRandomUnusedIndexes() {
   let indexes = [];
-  while (indexes.length < 3 && indexes.length < (wordsData.length - 1)) { // Garantir que haja palavras suficientes
+  // Verificar quantos índices não foram usados
+  let remainingIndexes = wordsData.length - 1 - usedIndexes.length;
+
+  while (indexes.length < Math.min(remainingIndexes, 3)) { // Sempre tenta pegar 3, mas não ultrapassa os disponíveis
     let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
     if (!usedIndexes.includes(index) && !indexes.includes(index)) {
       indexes.push(index);
     }
   }
+
   return indexes;
 }
+
 
 
     function resetButtons() {
