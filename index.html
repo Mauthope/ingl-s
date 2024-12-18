@@ -63,8 +63,8 @@
     #resetBtn:hover {
       color: #b4b4b4;
     }
-    
-      .word-block {
+
+    .word-block {
       display: flex;
       justify-content: center;
       gap: 20px;
@@ -146,16 +146,15 @@
       margin: 0 auto;
     }
 
-    /* Modal (Pop-up) */
     .modal {
-      display: none; /* Hidden by default */
-      position: fixed; /* Stay in place */
-      z-index: 1; /* Sit on top */
+      display: none;
+      position: fixed;
+      z-index: 1;
       left: 0;
       top: 0;
-      width: 100%; /* Full width */
-      height: 100%; /* Full height */
-      background-color: rgba(0, 0, 0, 0.6); /* Black with opacity */
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
     }
 
     .modal-content {
@@ -175,18 +174,15 @@
       font-weight: bold;
     }
 
-    .close:hover,
-    .close:focus {
+    .close:hover {
       color: #000;
-      text-decoration: none;
-      cursor: pointer;
     }
 
     #drawingCanvas {
-  border: 1px solid #3498db; /* Cor da borda do canvas */
-  background-color: #fff; /* Fundo branco para o canvas */
-  cursor: crosshair; /* Muda o cursor para uma cruz ao passar sobre o canvas */
-}
+      border: 1px solid #3498db;
+      background-color: #fff;
+      cursor: crosshair;
+    }
   </style>
 </head>
 <body>
@@ -196,29 +192,21 @@
 
     <button id="getWordsBtn">Palavras</button>
     <button id="translateBtn" disabled>Tradução</button>
-    <button id="getPhraseBtn" disabled>frase</button>
+    <button id="getPhraseBtn" disabled>Frase</button>
+    <button id="getReadPhraseBtn">Leitura de Frases</button>
 
     <div class="word-block" id="wordsContainer"></div>
     <div class="word-block" id="translationContainer"></div>
     <div class="word-block" id="phraseContainer"></div>
-    
-    <div id="commentSection">
-      <h2>Rascunho</h2>
-      <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
-      <br>
-<div id="drawingSection">
-  <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
-</div>
-      <button id="clearButton">Limpar Canvas</button>
-    </div>
-    
+
     <div id="learnedWords">
       <h2>Palavras aprendidas</h2>
       <ul id="learnedWordsList"></ul>
     </div>
   </div>
-    <button id="resetBtn">Reset</button> <!-- Botão reset discreto -->
-  </div>
+  
+  <button id="resetBtn">Reset</button>
+
   <!-- Modal (Pop-up) -->
   <div id="wordModal" class="modal">
     <div class="modal-content">
@@ -236,9 +224,10 @@
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
     let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
     let currentWordsIndexes = [];
+    let phraseIndex = 0;
 
     async function loadExcelFile() {
-      const response = await fetch('ingles.xlsx');
+      const response = await fetch('voz.xlsx');
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -249,28 +238,28 @@
     function getRandomUnusedIndexes() {
       let indexes = [];
       while (indexes.length < 3) {
-        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
+        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1;
         if (!usedIndexes.includes(index) && !indexes.includes(index)) {
           indexes.push(index);
         }
       }
       return indexes;
     }
-    function resetButtons() {
-  document.getElementById('translateBtn').disabled = true;
-  document.getElementById('getPhraseBtn').disabled = true;
-  document.getElementById('translationContainer').innerHTML = '';
-  document.getElementById('phraseContainer').innerHTML = '';
-  document.getElementById('commentSection').value = '';  // Limpa o campo de comentário
-}
 
-document.getElementById('getWordsBtn').addEventListener('click', () => {
-  resetButtons(); // Reseta os botões, containers e campo de comentário antes de exibir novas palavras
-  displayWords();
-});
+    function resetButtons() {
+      document.getElementById('translateBtn').disabled = true;
+      document.getElementById('getPhraseBtn').disabled = true;
+      document.getElementById('phraseContainer').innerHTML = '';
+    }
+
+    document.getElementById('getWordsBtn').addEventListener('click', () => {
+      resetButtons();
+      displayWords();
+    });
+
     function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
-        alert('All words have been used!');
+        alert('Todas as palavras foram usadas!');
         return;
       }
 
@@ -289,9 +278,7 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
         addLearnedWords(word);
       });
 
-      // Habilita o botão de tradução
       document.getElementById('translateBtn').disabled = false;
-      document.getElementById('getPhraseBtn').disabled = true; // Desabilita 'Get Phrase' até que as traduções sejam mostradas
     }
 
     function displayTranslations() {
@@ -305,7 +292,6 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
         translationContainer.appendChild(translationBlock);
       });
 
-      // Habilita o botão de frases
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
@@ -328,122 +314,55 @@ document.getElementById('getWordsBtn').addEventListener('click', () => {
     }
 
     function updateLearnedWordsList() {
-      const learnedWordsList = document.getElementById('learnedWordsList');
-      learnedWordsList.innerHTML = '';
-      learnedWords.forEach((word, index) => {
-        const listItem = document.createElement('li');
-        listItem.textContent = word;
-        listItem.addEventListener('click', () => showWordDetails(index));
-        learnedWordsList.appendChild(listItem);
+      const listContainer = document.getElementById('learnedWordsList');
+      listContainer.innerHTML = '';
+      learnedWords.forEach(word => {
+        const li = document.createElement('li');
+        li.textContent = word;
+        li.onclick = () => showWordDetails(word);
+        listContainer.appendChild(li);
       });
     }
 
-    function showWordDetails(index) {
+    function showWordDetails(word) {
+      const index = wordsData.findIndex(row => row[0] === word);
       const modal = document.getElementById('wordModal');
-      const wordDetails = wordsData[usedIndexes[index]];
+      const modalWord = document.getElementById('modalWord');
+      const modalTranslation = document.getElementById('modalTranslation');
+      const modalPhrase = document.getElementById('modalPhrase');
 
-      document.getElementById('modalWord').textContent = `Palavra: ${wordDetails[0]}`;
-      document.getElementById('modalTranslation').textContent = `Tradução: ${wordDetails[1]}`;
-      document.getElementById('modalPhrase').textContent = `Frase: ${wordDetails[2]}`;
-      
       modal.style.display = 'block';
+      modalWord.textContent = `Palavra: ${wordsData[index][0]}`;
+      modalTranslation.textContent = `Tradução: ${wordsData[index][1]}`;
+      modalPhrase.textContent = `Frase: ${wordsData[index][2]}`;
     }
 
-    // Close the modal
-    document.querySelector('.close').onclick = function() {
+    document.querySelector('.close').addEventListener('click', () => {
       document.getElementById('wordModal').style.display = 'none';
-    };
+    });
 
-    // Close the modal when clicking outside of it
-    window.onclick = function(event) {
-      if (event.target === document.getElementById('wordModal')) {
-        document.getElementById('wordModal').style.display = 'none';
-      }
-    };
-
-    document.getElementById('getWordsBtn').addEventListener('click', displayWords);
     document.getElementById('translateBtn').addEventListener('click', displayTranslations);
     document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
-        // Função para o botão Reset
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      if (confirm('Tem certeza que quer excluir seu progresso?')) {
-        localStorage.clear();
-        learnedWords = [];
-        usedIndexes = [];
-        updateLearnedWordsList();
-        document.getElementById('wordsContainer').innerHTML = '';
-        document.getElementById('translationContainer').innerHTML = '';
-        document.getElementById('phraseContainer').innerHTML = '';
-        document.getElementById('translateBtn').disabled = true;
-        document.getElementById('getPhraseBtn').disabled = true;
-      }
+    document.getElementById('getReadPhraseBtn').addEventListener('click', () => {
+      const phrases = currentWordsIndexes.map(index => wordsData[index][2]);
+      readPhrases(phrases);
     });
 
-const canvas = document.getElementById('drawingCanvas');
-const ctx = canvas.getContext('2d');
-let drawing = false;
+    function readPhrases(phrases) {
+      let phraseCount = 0;
+      const interval = setInterval(() => {
+        if (phraseCount >= phrases.length) {
+          clearInterval(interval);
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(phrases[phraseCount]);
+        window.speechSynthesis.speak(utterance);
+        phraseCount++;
+      }, 3000);
+    }
 
-// Funções de início e fim do desenho
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mouseup', stopDrawing);
-canvas.addEventListener('mousemove', draw);
-
-// Funções para toque em dispositivos móveis
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchend', stopDrawing);
-canvas.addEventListener('touchmove', draw);
-
-function startDrawing(e) {
-  e.preventDefault(); // Evita o comportamento padrão, como a rolagem
-  drawing = true;
-  ctx.beginPath();
-  ctx.moveTo(getMousePos(e).x, getMousePos(e).y);
-}
-
-function stopDrawing(e) {
-  e.preventDefault(); // Evita o comportamento padrão
-  drawing = false;
-  ctx.closePath();
-}
-
-function draw(e) {
-  e.preventDefault(); // Evita o comportamento padrão
-  if (!drawing) return;
-  
-  ctx.lineWidth = 2; // Largura da linha
-  ctx.lineCap = 'round'; // Estilo de ponta da linha
-  ctx.strokeStyle = '#3498db'; // Cor da linha
-
-  ctx.lineTo(getMousePos(e).x, getMousePos(e).y);
-  ctx.stroke();
-}
-
-function getMousePos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX || (e.touches[0].clientX); // Para toque
-  const y = e.clientY || (e.touches[0].clientY); // Para toque
-  return {
-    x: x - rect.left,
-    y: y - rect.top
-  };
-}
-
-// Adiciona o botão para limpar o canvas
-const clearButton = document.getElementById('clearButton');
-
-// Função para limpar o canvas
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-// Adiciona um evento de clique ao botão de limpar
-clearButton.addEventListener('click', clearCanvas);
-
-
-    
     loadExcelFile();
   </script>
-
 </body>
 </html>
