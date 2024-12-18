@@ -147,33 +147,12 @@
 
     document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
 
-    const readPhrasesModule = (() => {
-      let readPhrasesIndex = 0;
-
-      function readPhrases() {
-        if (currentWordsIndexes.length === 0) {
-          alert('Nenhuma palavra carregada para leitura de frases!');
-          return;
-        }
-
-        const phraseContainer = document.getElementById('phraseContainer');
-        if (readPhrasesIndex >= currentWordsIndexes.length) {
-          readPhrasesIndex = 0;
-        }
-
-        const phrase = wordsData[currentWordsIndexes[readPhrasesIndex]][2];
-        alert(`Lendo frase: ${phrase}`);
-        readPhrasesIndex++;
+    function displayWords() {
+      if (wordsData.length === 0) {
+        alert('Nenhum dado disponível!');
+        return;
       }
 
-      document.getElementById('readPhrasesBtn').addEventListener('click', readPhrases);
-
-      return {
-        readPhrases
-      };
-    })();
-
-    function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
         alert('Todas as palavras foram usadas!');
         return;
@@ -196,6 +175,11 @@
     }
 
     function displayTranslations() {
+      if (currentWordsIndexes.length === 0) {
+        alert('Nenhuma palavra carregada para tradução!');
+        return;
+      }
+
       const translationContainer = document.getElementById('translationContainer');
       translationContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
@@ -209,6 +193,11 @@
     }
 
     function displayPhrases() {
+      if (currentWordsIndexes.length === 0) {
+        alert('Nenhuma palavra carregada para exibição de frases!');
+        return;
+      }
+
       const phraseContainer = document.getElementById('phraseContainer');
       phraseContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
@@ -222,7 +211,7 @@
     function getRandomUnusedIndexes() {
       const indexes = [];
       while (indexes.length < 3) {
-        const index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
+        const index = Math.floor(Math.random() * wordsData.length);
         if (!usedIndexes.includes(index) && !indexes.includes(index)) {
           indexes.push(index);
         }
@@ -234,6 +223,31 @@
       document.getElementById('translateBtn').disabled = true;
       document.getElementById('getPhraseBtn').disabled = true;
     }
+
+    const readPhrasesModule = (() => {
+      let readPhrasesIndex = 0;
+
+      function readPhrases() {
+        if (currentWordsIndexes.length === 0) {
+          alert('Nenhuma palavra carregada para leitura de frases!');
+          return;
+        }
+
+        if (readPhrasesIndex >= currentWordsIndexes.length) {
+          readPhrasesIndex = 0;
+        }
+
+        const phrase = wordsData[currentWordsIndexes[readPhrasesIndex]][2];
+        alert(`Lendo frase: ${phrase}`);
+        readPhrasesIndex++;
+      }
+
+      document.getElementById('readPhrasesBtn').addEventListener('click', readPhrases);
+
+      return {
+        readPhrases
+      };
+    })();
   </script>
 </body>
 </html>
