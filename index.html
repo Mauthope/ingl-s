@@ -243,18 +243,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
     let wordsData = [];
+    let phrasesData = [];
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
     let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
     let currentWordsIndexes = [];
     let readPhrasesIndex = 0; // Índice para controlar o ciclo de leitura das frases
 
-    async function loadExcelFile() {
-      const response = await fetch('voz.xlsx');
+    async function loadExcelFile(fileName) {
+      const response = await fetch(fileName);
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      wordsData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      updateLearnedWordsList();
+      return XLSX.utils.sheet_to_json(worksheet, { header: 1 });
     }
 
     function getRandomUnusedIndexes() {
@@ -268,41 +268,39 @@
       return indexes;
     }
 
-    document.getElementById('getWordsBtn').addEventListener('click', () => {
+    document.getElementById('getWordsBtn').addEventListener('click', async () => {
       resetButtons();
+      wordsData = await loadExcelFile('ingles.xlsx');
       displayWords();
     });
 
-    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
+    document.getElementById('translateBtn').addEventListener('click', () => {
+      displayTranslations();
+    });
 
-    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
+    document.getElementById('getPhraseBtn').addEventListener('click', async () => {
+      phrasesData = await loadExcelFile('voz.xlsx');
+      displayPhrases();
+    });
 
     document.getElementById('resetBtn').addEventListener('click', () => {
-      if (confirm('Tem certeza que quer excluir seu progresso?')) {
-        localStorage.clear();
-        learnedWords = [];
+      if (confirm('Tem certeza que quer resetar tudo?')) {
         usedIndexes = [];
+        localStorage.removeItem('usedIndexes');
+        learnedWords = [];
+        localStorage.removeItem('learnedWords');
+        displayWords();
         updateLearnedWordsList();
-        document.getElementById('wordsContainer').innerHTML = '';
-        document.getElementById('translationContainer').innerHTML = '';
-        document.getElementById('phraseContainer').innerHTML = '';
-        document.getElementById('translateBtn').disabled = true;
-        document.getElementById('getPhraseBtn').disabled = true;
       }
     });
 
-    document.getElementById('readPhrasesBtn').addEventListener('click', readPhrases);
+    function resetButtons() {
+      document.getElementById('translateBtn').disabled = true;
+      document.getElementById('getPhraseBtn').disabled = true;
+    }
 
     function displayWords() {
-      if (usedIndexes.length >= wordsData.length - 1) {
-        alert('Todas as palavras foram usadas!');
-        return;
-      }
-
       currentWordsIndexes = getRandomUnusedIndexes();
-      usedIndexes.push(...currentWordsIndexes);
-      localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
-
       let wordsContainer = document.getElementById('wordsContainer');
       wordsContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
@@ -335,7 +333,7 @@
       currentWordsIndexes.forEach(index => {
         let phraseDiv = document.createElement('div');
         phraseDiv.className = 'word';
-        phraseDiv.textContent = wordsData[index][2];
+        phraseDiv.textContent = phrasesData[index][2];
         phraseContainer.appendChild(phraseDiv);
       });
     }
@@ -366,7 +364,7 @@
     function readPhrases() {
       if (readPhrasesIndex < currentWordsIndexes.length) {
         let index = currentWordsIndexes[readPhrasesIndex];
-        let phrase = wordsData[index][2];
+        let phrase = phrasesData[index][2];
         alert(`Frase: ${phrase}`);
         learnedWords.push(phrase);
         localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
@@ -378,7 +376,7 @@
       }
     }
 
-    loadExcelFile();
+    loadExcelFile('ingles.xlsx');
   </script>
 
 </body>
