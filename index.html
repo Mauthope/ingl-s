@@ -52,6 +52,7 @@
     #getPhraseBtn:hover {
       background-color: #c0392b;
     }
+
     #resetBtn {
       background-color: transparent;
       color: white;
@@ -146,15 +147,16 @@
       margin: 0 auto;
     }
 
+    /* Modal (Pop-up) */
     .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
       left: 0;
       top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      background-color: rgba(0, 0, 0, 0.6); /* Black with opacity */
     }
 
     .modal-content {
@@ -174,14 +176,17 @@
       font-weight: bold;
     }
 
-    .close:hover {
+    .close:hover,
+    .close:focus {
       color: #000;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     #drawingCanvas {
-      border: 1px solid #3498db;
-      background-color: #fff;
-      cursor: crosshair;
+      border: 1px solid #3498db; /* Cor da borda do canvas */
+      background-color: #fff; /* Fundo branco para o canvas */
+      cursor: crosshair; /* Muda o cursor para uma cruz ao passar sobre o canvas */
     }
   </style>
 </head>
@@ -193,19 +198,28 @@
     <button id="getWordsBtn">Palavras</button>
     <button id="translateBtn" disabled>Tradução</button>
     <button id="getPhraseBtn" disabled>Frase</button>
-    <button id="getReadPhraseBtn">Leitura de Frases</button>
+    <button id="readPhrasesBtn">Leitura de Frases</button>
 
     <div class="word-block" id="wordsContainer"></div>
     <div class="word-block" id="translationContainer"></div>
     <div class="word-block" id="phraseContainer"></div>
+
+    <div id="commentSection">
+      <h2>Rascunho</h2>
+      <textarea rows="4" placeholder="Rascunho para treinar..."></textarea>
+      <br>
+      <div id="drawingSection">
+        <canvas id="drawingCanvas" width="600" height="300" style="border: 1px solid #ccc;"></canvas>
+      </div>
+      <button id="clearButton">Limpar Canvas</button>
+    </div>
 
     <div id="learnedWords">
       <h2>Palavras aprendidas</h2>
       <ul id="learnedWordsList"></ul>
     </div>
   </div>
-  
-  <button id="resetBtn">Reset</button>
+  <button id="resetBtn">Reset</button> <!-- Botão reset discreto -->
 
   <!-- Modal (Pop-up) -->
   <div id="wordModal" class="modal">
@@ -224,7 +238,7 @@
     let usedIndexes = JSON.parse(localStorage.getItem('usedIndexes')) || [];
     let learnedWords = JSON.parse(localStorage.getItem('learnedWords')) || [];
     let currentWordsIndexes = [];
-    let phraseIndex = 0;
+    let readPhrasesIndex = 0; // Índice para controlar o ciclo de leitura das frases
 
     async function loadExcelFile() {
       const response = await fetch('voz.xlsx');
@@ -238,7 +252,7 @@
     function getRandomUnusedIndexes() {
       let indexes = [];
       while (indexes.length < 3) {
-        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1;
+        let index = Math.floor(Math.random() * (wordsData.length - 1)) + 1; // Ignora a linha do cabeçalho
         if (!usedIndexes.includes(index) && !indexes.includes(index)) {
           indexes.push(index);
         }
@@ -246,16 +260,30 @@
       return indexes;
     }
 
-    function resetButtons() {
-      document.getElementById('translateBtn').disabled = true;
-      document.getElementById('getPhraseBtn').disabled = true;
-      document.getElementById('phraseContainer').innerHTML = '';
-    }
-
     document.getElementById('getWordsBtn').addEventListener('click', () => {
       resetButtons();
       displayWords();
     });
+
+    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
+
+    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (confirm('Tem certeza que quer excluir seu progresso?')) {
+        localStorage.clear();
+        learnedWords = [];
+        usedIndexes = [];
+        updateLearnedWordsList();
+        document.getElementById('wordsContainer').innerHTML = '';
+        document.getElementById('translationContainer').innerHTML = '';
+        document.getElementById('phraseContainer').innerHTML = '';
+        document.getElementById('translateBtn').disabled = true;
+        document.getElementById('getPhraseBtn').disabled = true;
+      }
+    });
+
+    document.getElementById('readPhrasesBtn').addEventListener('click', readPhrases);
 
     function displayWords() {
       if (usedIndexes.length >= wordsData.length - 1) {
@@ -267,102 +295,83 @@
       usedIndexes.push(...currentWordsIndexes);
       localStorage.setItem('usedIndexes', JSON.stringify(usedIndexes));
 
-      const wordsContainer = document.getElementById('wordsContainer');
+      let wordsContainer = document.getElementById('wordsContainer');
       wordsContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
-        const word = wordsData[index][0];
-        const wordBlock = document.createElement('div');
-        wordBlock.classList.add('word');
-        wordBlock.textContent = word;
-        wordsContainer.appendChild(wordBlock);
-        addLearnedWords(word);
+        let wordDiv = document.createElement('div');
+        wordDiv.className = 'word';
+        wordDiv.textContent = wordsData[index][0];
+        wordDiv.addEventListener('click', () => showModal(index));
+        wordsContainer.appendChild(wordDiv);
       });
 
       document.getElementById('translateBtn').disabled = false;
     }
 
     function displayTranslations() {
-      const translationContainer = document.getElementById('translationContainer');
+      let translationContainer = document.getElementById('translationContainer');
       translationContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
-        const translation = wordsData[index][1];
-        const translationBlock = document.createElement('div');
-        translationBlock.classList.add('word');
-        translationBlock.textContent = translation;
-        translationContainer.appendChild(translationBlock);
+        let translationDiv = document.createElement('div');
+        translationDiv.className = 'word';
+        translationDiv.textContent = wordsData[index][1];
+        translationContainer.appendChild(translationDiv);
       });
 
       document.getElementById('getPhraseBtn').disabled = false;
     }
 
     function displayPhrases() {
-      const phraseContainer = document.getElementById('phraseContainer');
+      let phraseContainer = document.getElementById('phraseContainer');
       phraseContainer.innerHTML = '';
       currentWordsIndexes.forEach(index => {
-        const phrase = wordsData[index][2];
-        const phraseBlock = document.createElement('div');
-        phraseBlock.classList.add('word');
-        phraseBlock.textContent = phrase;
-        phraseContainer.appendChild(phraseBlock);
+        let phraseDiv = document.createElement('div');
+        phraseDiv.className = 'word';
+        phraseDiv.textContent = wordsData[index][2];
+        phraseContainer.appendChild(phraseDiv);
       });
     }
 
-    function addLearnedWords(word) {
-      learnedWords.push(word);
-      localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
-      updateLearnedWordsList();
+    function showModal(index) {
+      let modal = document.getElementById('wordModal');
+      document.getElementById('modalWord').textContent = wordsData[index][0];
+      document.getElementById('modalTranslation').textContent = wordsData[index][1];
+      document.getElementById('modalPhrase').textContent = wordsData[index][2];
+      modal.style.display = 'block';
+
+      let closeModal = document.querySelector('.close');
+      closeModal.onclick = () => {
+        modal.style.display = 'none';
+      };
     }
 
     function updateLearnedWordsList() {
-      const listContainer = document.getElementById('learnedWordsList');
-      listContainer.innerHTML = '';
+      let learnedWordsList = document.getElementById('learnedWordsList');
+      learnedWordsList.innerHTML = '';
       learnedWords.forEach(word => {
-        const li = document.createElement('li');
+        let li = document.createElement('li');
         li.textContent = word;
-        li.onclick = () => showWordDetails(word);
-        listContainer.appendChild(li);
+        learnedWordsList.appendChild(li);
       });
     }
 
-    function showWordDetails(word) {
-      const index = wordsData.findIndex(row => row[0] === word);
-      const modal = document.getElementById('wordModal');
-      const modalWord = document.getElementById('modalWord');
-      const modalTranslation = document.getElementById('modalTranslation');
-      const modalPhrase = document.getElementById('modalPhrase');
-
-      modal.style.display = 'block';
-      modalWord.textContent = `Palavra: ${wordsData[index][0]}`;
-      modalTranslation.textContent = `Tradução: ${wordsData[index][1]}`;
-      modalPhrase.textContent = `Frase: ${wordsData[index][2]}`;
-    }
-
-    document.querySelector('.close').addEventListener('click', () => {
-      document.getElementById('wordModal').style.display = 'none';
-    });
-
-    document.getElementById('translateBtn').addEventListener('click', displayTranslations);
-    document.getElementById('getPhraseBtn').addEventListener('click', displayPhrases);
-
-    document.getElementById('getReadPhraseBtn').addEventListener('click', () => {
-      const phrases = currentWordsIndexes.map(index => wordsData[index][2]);
-      readPhrases(phrases);
-    });
-
-    function readPhrases(phrases) {
-      let phraseCount = 0;
-      const interval = setInterval(() => {
-        if (phraseCount >= phrases.length) {
-          clearInterval(interval);
-          return;
-        }
-        const utterance = new SpeechSynthesisUtterance(phrases[phraseCount]);
-        window.speechSynthesis.speak(utterance);
-        phraseCount++;
-      }, 3000);
+    function readPhrases() {
+      if (readPhrasesIndex < currentWordsIndexes.length) {
+        let index = currentWordsIndexes[readPhrasesIndex];
+        let phrase = wordsData[index][2];
+        alert(`Frase: ${phrase}`);
+        learnedWords.push(phrase);
+        localStorage.setItem('learnedWords', JSON.stringify(learnedWords));
+        readPhrasesIndex++;
+        readPhrases(); // Chama recursivamente para ler a próxima frase
+      } else {
+        alert('Fim do ciclo de frases.');
+        readPhrasesIndex = 0; // Reinicia o ciclo
+      }
     }
 
     loadExcelFile();
   </script>
+
 </body>
 </html>
